@@ -27,25 +27,27 @@ EOF;
    $db->close();
 
 
-function inserta_registro(){
+function inserta_registro($file){
 	$db = new MyDB();
    if(!$db){
       echo $db->lastErrorMsg();
    }
 
-   $sql =<<<EOF
+   /*$sql =<<<EOF
       INSERT INTO file_ (NAME)
       VALUES ("file");
 
 EOF;
+	*/
 
-   $ret = $db->exec($sql);
+
+   $ret = $db->exec(" INSERT INTO file_ (NAME)  VALUES ('$file')");
    if(!$ret) {
       echo $db->lastErrorMsg();
    }
    
    $sql =<<<EOF
-      SELECT COUNT(id) AS 'lastId' FROM 'file_';
+      SELECT COUNT(id) AS 'lastId' FROM file_;
 EOF;
    $ret = $db->query($sql);
    while($row = $ret->fetchArray(SQLITE3_ASSOC) ) {
@@ -55,6 +57,25 @@ EOF;
    $db->close();
    
    return $lastId;
+}
+
+function existe_registro($file){
+
+	$db = new MyDB();
+	echo "Buscando $file <br>";
+	$rows = $db->query("SELECT NAME cantidad FROM file_ where NAME=$file");
+	$row = $rows->fetchArray();
+	$numRows = $row['count'];
+	
+	
+	
+	echo $numRows."Filas<br>";
+	$existe = false;
+	if((int)$numRows > 0){
+		$existe = true;
+	}
+	$db->close();
+	return $existe;
 }
 
 ?>

@@ -16,11 +16,24 @@ function leer_archivos($carpeta){
                     $info = new SplFileInfo($archivo);					
 					if($info->getExtension() === 'json'){
 						$i++;
-						$lastId = inserta_registro();
-						$lastId = str_pad($lastId, 10, "0", STR_PAD_LEFT);
 						
-						echo $i.'.- Procesando archivo '.$archivo.'<br>';
-						generar_txt($carpeta.'/'.$archivo,$archivo,$lastId);
+						$titulo_arr = explode("-", $archivo);	
+						$titulo_arr = str_replace(".json","",$titulo_arr[3]);
+						
+
+						/*Consulta si ya existe */
+						$existe = existe_registro($titulo_arr);
+						
+						echo 'EXISTE '.($existe)?'existe':'noexiste'.'<br>';
+						if(!$existe){
+							$lastId = inserta_registro($titulo_arr);
+							$lastId = str_pad($lastId, 10, "0", STR_PAD_LEFT);
+						
+							echo $i.'.- Procesando archivo '.$archivo.'<br>';
+							//generar_txt($carpeta.'/'.$archivo,$archivo,$lastId);
+						}
+						
+						
 					}
                 }
             }

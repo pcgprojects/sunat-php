@@ -87,7 +87,7 @@ function genera_cabecera($cabecera,$correlativo,$correlativoSqlite,$tipoDocument
 		$cabecera->tipMoneda,
 		$cabecera->mtoOperGravadas, //subtotal 10
 		$cabecera->mtoDescuentos,//total, descuentos 11
-		$cabecera->mtoImpVenta, //total 12
+		$cabecera->mtoOperGravadas, //total 12
 		0,//total, ISC  13
 		$cabecera->mtoIGV,//total, IGV  14
 		0, //total, otros cargos 15
@@ -127,7 +127,7 @@ function genera_detalle($json){
 		$descripcion = $det->desItem;
 		$descripcion = str_replace("<![CDATA[","",$descripcion);
 		$descripcion = str_replace("]]>","",$descripcion);
-		
+		$importe_total = (double)$det->mtoValorVentaItem + (double)$det->mtoIgvItem;
 		$arrayDetalle = [
 			$i,  // Id detalle  1
 			'SERVICIO', // Tipo ítem  2 
@@ -140,15 +140,15 @@ function genera_detalle($json){
 			$det->mtoValorUnitario, //Valor unitario 9
 			0, //Descuento 10
 			0, //Porcentaje descuento 0-1   11
-			$cabecera->mtoOperGravadas, //Base imponible 12
-			$cabecera->mtoIGV, //IGV  13
+			$det->mtoValorVentaItem, //Base imponible 12
+			$det->mtoIgvItem, //IGV  13
 			'0.00', //ISC 14
 			'0.00', //Porcentaje ISC  15
 			0, // Otros cargos 16
 			0, // Porcentaje otros cargos 17
 			0, // Otros tributos 18
 			0, // Porcentaje otros tributos  19
-			$cabecera->mtoImpVenta, // Importe total 20
+			$importe_total, // Importe total 20
 		];
 		$detalle = implode("|", $arrayDetalle);
 
@@ -191,16 +191,3 @@ leer_archivos(CONST_RUTA_JSON);
 
 
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-<a href="#" onclick="window.open('file:///F:\formatos\20494306043-03-B004-0000000014.pdf', '_blank', 'fullscreen=yes'); return false;">MyPDF</a>
-<a href="file:///F:\formatos\20494306043-03-B004-0000000014.pdf" target="_blank" rel="noopener" >Ver PDF Sunat</a>
-<a href="file:///formatos\20494306043-03-B004-0000000014.pdf">Ver PDF Sunat</a>
-
-
-</body>
-</html>
