@@ -1,5 +1,6 @@
 <?php
 
+require dirname(__FILE__) . "/bdSqlite.php";
 /**
 *Leer archivos desde ruta especifica
 *
@@ -15,8 +16,11 @@ function leer_archivos($carpeta){
                     $info = new SplFileInfo($archivo);					
 					if($info->getExtension() === 'json'){
 						$i++;
+						$lastId = inserta_registro();
+						$lastId = str_pad($lastId, 10, "0", STR_PAD_LEFT);
+						
 						echo $i.'.- Procesando archivo '.$archivo.'<br>';
-						generar_txt($carpeta.'/'.$archivo,$archivo);
+						generar_txt($carpeta.'/'.$archivo,$archivo,$lastId);
 					}
                 }
             }
@@ -43,8 +47,8 @@ function genera_archivo($titulo,$cabecera,$detalle,$cliente){
 		$FILE_DAY = date("d");
 		
 		 
-		$URL_FULL = CONST_RUTA_TXT.'/'.$FILE_YEAR.'/'.$FILE_MONTH .'/'.$FILE_DAY;
-		
+		//$URL_FULL = CONST_RUTA_TXT.'/'.$FILE_YEAR.'/'.$FILE_MONTH .'/'.$FILE_DAY;
+		$URL_FULL = CONST_RUTA_TXT;
 		echo $URL_FULL ;
 		
 		mkdir($URL_FULL,0777, true);

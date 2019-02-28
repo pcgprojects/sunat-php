@@ -9,7 +9,7 @@ date_default_timezone_set('GTM');
 *Generando archivo txt
 *
 */
-function generar_txt($file,$file_){
+function generar_txt($file,$file_,$lastId){
 	$data = file_get_contents($file);
 	
 	$json = json_decode($data);
@@ -17,7 +17,10 @@ function generar_txt($file,$file_){
 	$titulo_arr = explode("-", $file_);	
 	
 	$correlativo = str_replace(".json","",$titulo_arr[3]);
-	$correlativo = str_pad($correlativo, 10, "0", STR_PAD_LEFT);
+	$correlativo = str_pad($correlativo, 8, "0", STR_PAD_LEFT);
+	
+	$correlativoSqlite = $lastId;
+	
 	$tipoDocumento = $titulo_arr[1];
 	$fechaOriginal = date("d-m-Y H:i:s", filemtime($file));
 	
@@ -35,8 +38,8 @@ function generar_txt($file,$file_){
 		'serieDocumento' => $titulo_arr[2]
 	];
 	
-	$titulo =  genera_titulo($json->cabecera,$correlativo,$tipoDocumento);
-	$cabecera = genera_cabecera($json->cabecera,$correlativo,$tipoDocumento,$datosExtras);
+	$titulo =  genera_titulo($json->cabecera,$correlativoSqlite,$tipoDocumento);
+	$cabecera = genera_cabecera($json->cabecera,$correlativo,$correlativoSqlite,$tipoDocumento,$datosExtras);
 	$detalle = genera_detalle($json);
 	$cliente = genera_detalle_cliente($json->cabecera);
 	
@@ -44,13 +47,13 @@ function generar_txt($file,$file_){
 }
 
 
-function genera_titulo($cabecera,$correlativo,$tipoDocumento){
+function genera_titulo($cabecera,$correlativoSqlite,$tipoDocumento){
 	//RUC
 	$nro_1= CONST_RUC;
 	//Código sucursal emisor
 	$nro_2= CONST_SUCURSAL;
 	//Correlativo
-	$nro_3= $correlativo;
+	$nro_3= $correlativoSqlite;
 	//Fecha envío
 	$nro_4= formatea_fecha($cabecera->fecEmision);
 	//Código tipo documento
@@ -63,11 +66,18 @@ function genera_titulo($cabecera,$correlativo,$tipoDocumento){
 	return $titulo;
 }
 
-function genera_cabecera($cabecera,$correlativo,$tipoDocumento,$datosExtras){	
+function genera_cabecera($cabecera,$correlativo,$correlativoSqlite,$tipoDocumento,$datosExtras){	
 	
+	$usuario = '';
+	$serie = $datosExtras['serieDocumento'];
+	if($serie === 'F001'){
+		$usuario = 'faccsl';
+	}else if($serie === 'F002' || $serie === 'B002'){
+		$usuario = 'admcsl';
+	}
 	$arrayCabecera = [
 		CONST_CLIENT_VERSION_TXT,
-		$correlativo, //Id documento correlativo
+		$correlativoSqlite, //Id documento correlativo
 		$tipoDocumento, //Código tipo de documento
 		CONST_TIPO_OPERACION, //Tipo de operación
 		CONST_RUC,
@@ -87,9 +97,9 @@ function genera_cabecera($cabecera,$correlativo,$tipoDocumento,$datosExtras){
 		'na', //Tiene documento referencia 19
 		'', //Dejar en blanco 20
 		'', //Dejar en blanco 21
-		$datosExtras['serieDocumento'], //Dejar en blanco 22 del TITULO
-		'', //Dejar en blanco 23  CONSULTAR JDM
-		'', //Dejar en blanco 24 DE BASE DE DATOS
+		$serie, //Dejar en blanco 22 del TITULO
+		$correlativo, //Dejar en blanco 23  CONSULTAR JDM
+		$usuario, //Dejar en blanco 24 DE BASE DE DATOS
 		'', //Dejar en blanco 25 obs CONSULTAR
 		'009', //Condición de pago 26
 		'', //Numero de la orden de compra 27
@@ -124,7 +134,7 @@ function genera_detalle($json){
 			$det->tipAfeIGV, //tipo afectación al IGV	 3
 			$det->codUnidadMedida, // Unidad medida 4
 			0, //Código interno 5 ***** CONSULTAR JDM
-			0, //Código producto SUNAT 6 ***** Consultar con Ing. anterior 85121600,85121800, 85121900
+			CONST_CODIGO_PRODUCTO, //Código producto SUNAT 6 ***** Consultar con Ing. anterior 85121600,85121800, 85121900
 			$descripcion, // Descripción 7  **** Consultar si queda con CDATA o se le quita
 			$det->ctdUnidadItem, // Cantidad 8
 			$det->mtoValorUnitario, //Valor unitario 9
@@ -178,6 +188,8 @@ function genera_detalle_cliente($cabecera){
 limpiarCarpeta();
 leer_archivos(CONST_RUTA_JSON);
 
+
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -185,9 +197,9 @@ leer_archivos(CONST_RUTA_JSON);
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-
-<a href="file:///F:\formatos\20494306043-03-B004-0000000014.pdf">Ver PDF Sunat</a>
-
+<a href="#" onclick="window.open('file:///F:\formatos\20494306043-03-B004-0000000014.pdf', '_blank', 'fullscreen=yes'); return false;">MyPDF</a>
+<a href="file:///F:\formatos\20494306043-03-B004-0000000014.pdf" target="_blank" rel="noopener" >Ver PDF Sunat</a>
+<a href="file:///formatos\20494306043-03-B004-0000000014.pdf">Ver PDF Sunat</a>
 
 
 </body>

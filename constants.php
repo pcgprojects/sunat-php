@@ -5,7 +5,9 @@ const CONST_SUCURSAL = '0000';
 const CONST_CLIENT_VERSION_TXT = '210';
 const CONST_RUTA_JSON = 'F:/formatos';
 const CONST_RUTA_TXT='F:/xampp/htdocs/CLS_puente_PHP/files_';
+const CONST_RUTA_PDF = 'F:/formatos';
 const CONST_TIPO_OPERACION = '0101';
+const CONST_CODIGO_PRODUCTO = '85120000';
 
 /*Aseguradoras*/
 
