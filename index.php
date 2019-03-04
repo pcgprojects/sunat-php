@@ -43,7 +43,14 @@ function generar_txt($file,$file_,$lastId){
 	$detalle = genera_detalle($json);
 	$cliente = genera_detalle_cliente($json->cabecera);
 	
-	genera_archivo($titulo,$cabecera,$detalle,$cliente);
+	if((double) $json->cabecera->sumDsctoGlobal > 0){
+		$descuentoGlobal = "\r\n".genera_detalle_descuentos($json);
+	}else{
+		$descuentoGlobal = '';
+	}
+	
+	
+	genera_archivo($titulo,$cabecera,$detalle,$cliente,$descuentoGlobal);
 }
 
 
@@ -107,7 +114,7 @@ function genera_cabecera($cabecera,$correlativo,$correlativoSqlite,$tipoDocument
 		((int)$cabecera->mtoImpVenta > 700)? 1:0, //Mensaje detracción 29  mayor a 700so
 		0, //Transferencia gratuita 30
 		0, //Documento relacionado 31
-		0, //Descuento global 32
+		1, //Descuento global 32
 		0, //Otros cargos globales  33
 		0, //Anticipo  34
 	];
@@ -122,12 +129,22 @@ function genera_detalle($json){
 	$cabecera = $json->cabecera;
 	$detalleFull = "";
 	$i = 1;
+	
+	$totalDescuento = $cabecera->mtoDescuentos;
+	$cantidadProductos = count($detalle);
+	$descuentoUnitario = (double) $totalDescuento / $cantidadProductos;
+	$porcentaje_dscto = (double) $descuentoUnitario / (double)$totalDescuento;
+	
 	foreach($detalle as $det){
 		
 		$descripcion = $det->desItem;
 		$descripcion = str_replace("<![CDATA[","",$descripcion);
 		$descripcion = str_replace("]]>","",$descripcion);
 		$importe_total = (double)$det->mtoValorVentaItem + (double)$det->mtoIgvItem;
+		
+		
+		//$descuentoUnitario, //Descuento 10
+		//$porcentaje_dscto, //Porcentaje descuento 0-1   11
 		$arrayDetalle = [
 			$i,  // Id detalle  1
 			'SERVICIO', // Tipo ítem  2 
@@ -139,7 +156,7 @@ function genera_detalle($json){
 			$det->ctdUnidadItem, // Cantidad 8
 			$det->mtoValorUnitario, //Valor unitario 9
 			0, //Descuento 10
-			0, //Porcentaje descuento 0-1   11
+			0,//Porcentaje descuento 0-1   11
 			$det->mtoValorVentaItem, //Base imponible 12
 			$det->mtoIgvItem, //IGV  13
 			'0.00', //ISC 14
@@ -185,9 +202,41 @@ function genera_detalle_cliente($cabecera){
 }
 
 
+function genera_detalle_descuentos($json){
+	
+	$cabecera = $json->cabecera;
+	$detalle = $json->detalle;
+	$sumDsctoGlobal = (double) $cabecera->sumDsctoGlobal;
+	$montoSumatoriaBase = 0;
+	foreach($detalle as $det){
+		$montoSumatoriaBase = (double) $montoSumatoriaBase +  (double)$det->mtoValorVentaItem;
+	}
+	
+	$porcentajeDscto = ($sumDsctoGlobal / $montoSumatoriaBase);
+	
+	$arrayCabecera = [
+		'Descuento', //Id diferencial 1
+		$porcentajeDscto, // Porcentaje 2
+		$sumDsctoGlobal, // Valor 3
+		'02', // Código motivo de descuento 4
+	];
+	
+	$cabecera = implode("|", $arrayCabecera);
+	
+	return $cabecera;
+}
+
 limpiarCarpeta();
 leer_archivos(CONST_RUTA_JSON);
 
 
 
 ?>
+
+<script>
+/*
+setTimeout(function(){
+   window.location.reload(1);
+}, 5000);
+*/
+</script>

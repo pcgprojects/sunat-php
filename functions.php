@@ -24,14 +24,13 @@ function leer_archivos($carpeta){
 						/*Consulta si ya existe */
 						$existe = existe_registro($titulo_arr);
 						
-						echo 'EXISTE '.($existe)?'existe':'noexiste'.'<br>';
-						if(!$existe){
+						//if(!$existe){
 							$lastId = inserta_registro($titulo_arr);
 							$lastId = str_pad($lastId, 10, "0", STR_PAD_LEFT);
 						
 							echo $i.'.- Procesando archivo '.$archivo.'<br>';
-							//generar_txt($carpeta.'/'.$archivo,$archivo,$lastId);
-						}
+							generar_txt($carpeta.'/'.$archivo,$archivo,$lastId);
+						//}
 						
 						
 					}
@@ -50,7 +49,7 @@ function formatea_fecha($originalDate){
 	return $newDate;
 }
 
-function genera_archivo($titulo,$cabecera,$detalle,$cliente){
+function genera_archivo($titulo,$cabecera,$detalle,$cliente,$descuentoGlobal){
 	$nombre_archivo = $titulo.".txt"; 
 
     if(!file_exists($nombre_archivo))
@@ -67,7 +66,7 @@ function genera_archivo($titulo,$cabecera,$detalle,$cliente){
 		mkdir($URL_FULL,0777, true);
 		if($archivo = fopen($URL_FULL.'/'.$nombre_archivo, "a"))
 		{
-			if(fwrite($archivo,$cabecera."\r\n".$detalle.$cliente))
+			if(fwrite($archivo,$cabecera."\r\n".$detalle.$cliente.$descuentoGlobal))
 			{
 				echo 'Archivo creado '.$nombre_archivo.'<br>';
 			}else{

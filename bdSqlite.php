@@ -7,7 +7,7 @@
       }
    }
    
-   $db = new MyDB();
+  $db = new MyDB();
    if(!$db) {
       echo $db->lastErrorMsg();
    } else {
@@ -33,14 +33,6 @@ function inserta_registro($file){
       echo $db->lastErrorMsg();
    }
 
-   /*$sql =<<<EOF
-      INSERT INTO file_ (NAME)
-      VALUES ("file");
-
-EOF;
-	*/
-
-
    $ret = $db->exec(" INSERT INTO file_ (NAME)  VALUES ('$file')");
    if(!$ret) {
       echo $db->lastErrorMsg();
@@ -62,14 +54,11 @@ EOF;
 function existe_registro($file){
 
 	$db = new MyDB();
-	echo "Buscando $file <br>";
-	$rows = $db->query("SELECT NAME cantidad FROM file_ where NAME=$file");
+
+	$rows = $db->query("SELECT COUNT(*) as count FROM file_ where NAME=$file");
 	$row = $rows->fetchArray();
 	$numRows = $row['count'];
 	
-	
-	
-	echo $numRows."Filas<br>";
 	$existe = false;
 	if((int)$numRows > 0){
 		$existe = true;
