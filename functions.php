@@ -24,13 +24,13 @@ function leer_archivos($carpeta){
 						/*Consulta si ya existe */
 						$existe = existe_registro($titulo_arr);
 						
-						//if(!$existe){
+						if(!$existe){
 							$lastId = inserta_registro($titulo_arr);
 							$lastId = str_pad($lastId, 10, "0", STR_PAD_LEFT);
 						
 							echo $i.'.- Procesando archivo '.$archivo.'<br>';
 							generar_txt($carpeta.'/'.$archivo,$archivo,$lastId);
-						//}
+						}
 						
 						
 					}
